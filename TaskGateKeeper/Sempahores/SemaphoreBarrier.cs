@@ -10,14 +10,27 @@
 /// </remarks>
 public abstract class SemaphoreBarrier
 {
+    /// <summary>
+    /// Underlying semaphore used to enforce the barrier.
+    /// </summary>
     private readonly SemaphoreSlim _Semaphore = new(1, 1);
 
+    /// <summary>
+    /// Reports whether the barrier is currently in use (i.e., if a task has entered and not yet left).
+    /// </summary>
     public bool InUse()
         => _Semaphore.CurrentCount == 0;
 
+    /// <summary>
+    /// Attempts to enter the barrier, waiting up to the specified number of milliseconds.
+    /// </summary>
+    /// <param name="waitMS"></param>
     public bool Enter(int waitMS)
         => _Semaphore.Wait(waitMS);
 
+    /// <summary>
+    /// Leaves the barrier, releasing the semaphore.
+    /// </summary>
     public void Leave()
     {
         _ = _Semaphore.Release();

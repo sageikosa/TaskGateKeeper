@@ -8,7 +8,9 @@ public static class DISetup
 {
     public static IServiceCollection AddTaskBarriers(this IServiceCollection services)
     {
-        services.TryAddSingleton(typeof(ITaskBarrierDictionary<,>), typeof(TaskBarrierDictionary<,>));
+        services.TryAddSingleton(typeof(IIndexedTaskBarrierDispenser<,>), typeof(IndexedTaskBarrierDispenser<,>));
+
+        // TODO: make sure task-barriers in ITaskBarrierDictionary<,> get removed when no longer used
 
         // SemaphoreBarriers used here tracked in ITaskBarrierDictionary<,> (a singleton)
         services.TryAddScoped(typeof(IndexedBarriers<,>));

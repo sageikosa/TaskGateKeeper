@@ -1,19 +1,28 @@
 ﻿namespace TaskGateKeeper.Sempahores;
 
-public class IndexedBarriers<TKey, TBarrier>(
-    ITaskBarrierDictionary<TKey, TBarrier> barriers
-    ) : IDisposable
+public sealed class IndexedBarriers<TKey, TBarrier> : IDisposable
     where TKey : struct, IEquatable<TKey>
     where TBarrier : SemaphoreBarrier, new()
 {
     private readonly HashSet<TKey> _Entered = [];
+    private readonly IIndexedTaskBarrierDispenser<TKey, TBarrier> _Barriers;
     private bool _Disposed;
+
+    public IndexedBarriers(
+        IIndexedTaskBarrierDispenser<TKey, TBarrier> barriers
+    )
+    {
+        _Barriers = barriers;
+
+        // prevents dispenser from clearing out barriers while active
+        _Barriers.StartingUse();
+    }
 
     public bool TryEnter(TKey key, int waitMilli)
     {
         if (!_Entered.Contains(key))
         {
-            var _blocker = barriers.GetOrAdd(key, 
+            var _blocker = _Barriers.GetOrAdd(key, 
                 _ndx =>
                 {
                     return new TBarrier();
@@ -32,7 +41,7 @@ public class IndexedBarriers<TKey, TBarrier>(
     {
         if (_Entered.Remove(key))
         {
-            barriers.TryGetValue(key)?.Leave();
+            _Barriers.TryGetValue(key)?.Leave();
         }
     }
 
@@ -40,7 +49,7 @@ public class IndexedBarriers<TKey, TBarrier>(
     {
         if (!_Entered.Contains(key))
         {
-            var _blocker = barriers.GetOrAdd(key, 
+            var _blocker = _Barriers.GetOrAdd(key, 
                 _ndx =>            
                 {
                     return new TBarrier();
@@ -50,16 +59,23 @@ public class IndexedBarriers<TKey, TBarrier>(
         return true;
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        // safeguard against multiple calls
         if (!_Disposed)
         {
             if (disposing)
             {
+                // clean up anything entered
                 foreach (var _entered in _Entered)
                 {
-                    barriers.TryGetValue(_entered)?.Leave();
+                    _Barriers.TryGetValue(_entered)?.Leave();
                 }
+
+                // allows the dispenser to clean up unused barriers
+                _Barriers.FinishedUse();
+
+                // forget what has been entered
                 _Entered.Clear();
             }
 

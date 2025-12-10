@@ -3,7 +3,7 @@
 /// <summary>
 /// Task friendly barrier, capable of being disposed, and thus pretty good in ASP.NET DI Scopes
 /// </summary>
-public class TaskBarrier<TBarrier>(
+public sealed class TaskBarrier<TBarrier>(
     TBarrier barrier
     ) : IDisposable
     where TBarrier : SemaphoreBarrier
@@ -32,7 +32,7 @@ public class TaskBarrier<TBarrier>(
     public bool IsEnterable()
         => _Entered || !barrier.InUse();
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_Disposed)
         {
