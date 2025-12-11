@@ -3,8 +3,8 @@ using TaskGateKeeper.Sempahores;
 
 namespace TaskGateKeeper;
 
-public sealed class IndexedTaskBarrierDispenser<TKey, TBarrier>
-    : IIndexedTaskBarrierDispenser<TKey, TBarrier>
+public sealed class IndexedBarrierDispenser<TKey, TBarrier>
+    : IIndexedBarrierDispenser<TKey, TBarrier>
     where TKey : struct, IEquatable<TKey>
     where TBarrier : SemaphoreBarrier, new()
 {
@@ -41,7 +41,7 @@ public sealed class IndexedTaskBarrierDispenser<TKey, TBarrier>
         => _Dictionary.TryGetValue(key, out TBarrier? _value) ? _value : default;
 
     /// <summary>
-    /// Called by <see cref="IndexedBarriers{TKey, TBarrier}"/> to signal starting use of barriers in a DI scope."
+    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal starting use of barriers in a DI scope."
     /// </summary>
     public void StartingUse()
     {
@@ -54,7 +54,7 @@ public sealed class IndexedTaskBarrierDispenser<TKey, TBarrier>
     }
 
     /// <summary>
-    /// Called by <see cref="IndexedBarriers{TKey, TBarrier}"/> to signal finished use of barriers in a DI scope."
+    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal finished use of barriers in a DI scope."
     /// </summary>
     public void FinishedUse()
     {

@@ -1,15 +1,23 @@
 ﻿namespace TaskGateKeeper.Sempahores;
 
-public sealed class IndexedBarriers<TKey, TBarrier> : IDisposable
+/// <summary>
+/// Implementation of indexed barrier guard management, for gate-keeping access to SemaphoreBarriers across multiple
+/// DI-scopes.
+/// </summary>
+/// <remarks>
+/// </remarks>
+/// <typeparam name="TKey">value type to use as a key</typeparam>
+/// <typeparam name="TBarrier">barriers used are created and destroyed by this class</typeparam>
+public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
     where TKey : struct, IEquatable<TKey>
     where TBarrier : SemaphoreBarrier, new()
 {
     private readonly HashSet<TKey> _Entered = [];
-    private readonly IIndexedTaskBarrierDispenser<TKey, TBarrier> _Barriers;
+    private readonly IIndexedBarrierDispenser<TKey, TBarrier> _Barriers;
     private bool _Disposed;
 
-    public IndexedBarriers(
-        IIndexedTaskBarrierDispenser<TKey, TBarrier> barriers
+    public IndexedBarrierGuards(
+        IIndexedBarrierDispenser<TKey, TBarrier> barriers
     )
     {
         _Barriers = barriers;

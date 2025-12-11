@@ -6,19 +6,18 @@ namespace TaskGateKeeper;
 
 public static class DISetup
 {
-    public static IServiceCollection AddTaskBarriers(this IServiceCollection services)
+    public static IServiceCollection AddScopeBarriers(this IServiceCollection services)
     {
-        services.TryAddSingleton(typeof(IIndexedTaskBarrierDispenser<,>), typeof(IndexedTaskBarrierDispenser<,>));
+        // generic implementation for handling combinations of indexed barriers
+        services.TryAddSingleton(typeof(IIndexedBarrierDispenser<,>), typeof(IndexedBarrierDispenser<,>));
 
-        // TODO: make sure task-barriers in ITaskBarrierDictionary<,> get removed when no longer used
-
-        // SemaphoreBarriers used here tracked in ITaskBarrierDictionary<,> (a singleton)
-        services.TryAddScoped(typeof(IndexedBarriers<,>));
+        // SemaphoreBarriers used here tracked in IIndexedBarrierDispenser<,> (a singleton)
+        services.TryAddScoped(typeof(IndexedBarrierGuards<,>));
 
         // SemaphoreBarriers used here should be registered "global" in DI container
-        services.TryAddScoped(typeof(TaskBarrier<>));
+        services.TryAddScoped(typeof(ScopedBarrierGuard<>));
 
-        // TODO: setup some sample SemaphoreBarriers to use with TaskBarrier<>
+        // TODO: setup some sample SemaphoreBarriers to use with ScopedBarrierGuard<>
 
         // TODO: setup some sample code to demonstrate usage
 

@@ -1,12 +1,19 @@
 ﻿namespace TaskGateKeeper.Sempahores;
 
 /// <summary>
-/// Provides a synchronization barrier that allows only one task to enter at a time, 
+/// Provides a synchronization barrier that allows only one DI-scope to enter at a time, 
 /// using a semaphore-based mechanism.
 /// </summary>
-/// <remarks>This abstract class offers basic enter and leave operations for mutual exclusion scenarios. It can be
-/// used to coordinate access to a shared resource among multiple tasks. 
-/// Derived classes are strongly-typed references that can be used for specific barrier implementations.
+/// <remarks>
+/// <para>
+/// This abstract class offers basic enter and leave operations for mutual exclusion scenarios. It can be
+/// used to coordinate access to a shared resource among multiple DI-scopes.
+/// </para>
+/// <para>
+/// Derived classes can be used as generic type parameters to control access to either: a singleton resource, using
+/// <see cref="ScopedBarrierGuard{TBarrier}"></see>;
+/// or from amongst a set of indexed resources using <see cref="IndexedBarrierGuards{TKey, TBarrier}"/>
+/// </para>
 /// </remarks>
 public abstract class SemaphoreBarrier
 {
@@ -16,7 +23,7 @@ public abstract class SemaphoreBarrier
     private readonly SemaphoreSlim _Semaphore = new(1, 1);
 
     /// <summary>
-    /// Reports whether the barrier is currently in use (i.e., if a task has entered and not yet left).
+    /// Reports whether the barrier is currently in use (i.e., if a DI-scope has entered and not yet left).
     /// </summary>
     public bool InUse()
         => _Semaphore.CurrentCount == 0;

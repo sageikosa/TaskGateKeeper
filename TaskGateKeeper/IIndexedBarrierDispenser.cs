@@ -14,20 +14,20 @@ namespace TaskGateKeeper;
 /// cref="IEquatable{TKey}"/>.</typeparam>
 /// <typeparam name="TBarrier">The type of semaphore barrier stored in the dictionary. Must inherit from <see cref="SemaphoreBarrier"/> and have a
 /// parameterless constructor.</typeparam>
-public interface IIndexedTaskBarrierDispenser<TKey, TBarrier>
+public interface IIndexedBarrierDispenser<TKey, TBarrier>
     where TKey: struct, IEquatable<TKey>
     where TBarrier : SemaphoreBarrier, new()
 {
     /// <summary>
-    /// Called by <see cref="IndexedBarriers{TKey, TBarrier}"/> to signal starting use of barriers in a DI scope."
+    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal starting use of barriers in a DI-scope."
     /// </summary>
-    /// <remarks>Called in <see cref="IndexedBarriers{TKey, TBarrier}"/> ctor()</remarks>
+    /// <remarks>Called in <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> ctor()</remarks>
     void StartingUse();
 
     /// <summary>
-    /// Called by <see cref="IndexedBarriers{TKey, TBarrier}"/> to signal finished use of barriers in a DI scope."
+    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal finished use of barriers in a DI-scope."
     /// </summary>
-    /// <remarks>Called in <see cref="IndexedBarriers{TKey, TBarrier}"/> Dispose</remarks>
+    /// <remarks>Called in <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> Dispose</remarks>
     void FinishedUse();
 
     /// <summary>
