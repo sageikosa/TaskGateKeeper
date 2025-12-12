@@ -33,8 +33,14 @@ public sealed class ScopedBarrierGuard<TBarrier>(
     }
 
     /// <summary>
-    /// Try to leave the barrier within the DI-scope.
+    /// Explicitly exit an indexed barrier.
     /// </summary>
+    /// <remarks>
+    /// <para>This method is useful for leaving barriered sections before the DI scope is complete.</para>
+    /// <para>Usually used when flow processing has determined that the barriered section is no longer needed, 
+    /// but the processing flow might continue looking for additional barriered resources.</para>
+    /// <para>Work might be abandonned when additional barriered sections are needed, but are unable to be entered.</para>
+    /// </remarks>
     public void TryLeave()
     {
         if (_Entered)
@@ -45,7 +51,7 @@ public sealed class ScopedBarrierGuard<TBarrier>(
     }
 
     /// <summary>
-    /// "Casual" test to see if entereable
+    /// "Casual" test to see if enterable
     /// </summary>
     /// <remarks>
     /// <para>If already entered in this DI-scope, it is strictly true.</para>
