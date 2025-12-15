@@ -1,8 +1,8 @@
 ﻿namespace TaskGateKeeper.Sempahores;
 
 /// <summary>
-/// Implementation of indexed barrier guard management, for gate-keeping access to SemaphoreBarriers across multiple
-/// DI-scopes.
+/// Implementation of indexed critical-section, for gate-keeping access to SemaphoreBarriers across multiple
+/// service provider scopes.
 /// </summary>
 /// <remarks>
 /// Use <see cref="TryEnter(TKey, int)"/> to attempt to gain access to a barrier.  
@@ -10,25 +10,25 @@
 /// </remarks>
 /// <typeparam name="TKey">value type to use as a key</typeparam>
 /// <typeparam name="TBarrier">barriers used are created and destroyed by this class</typeparam>
-public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
+public sealed class IndexedCriticalSection<TKey, TBarrier> : IDisposable
     where TKey : struct, IEquatable<TKey>
-    where TBarrier : SemaphoreBarrier, new()
+    where TBarrier : SemaphoreBarrier, IIndexableSemaphoreBarrier<TKey>, new()
 {
     /// <summary>List of all keys that have entered barriers in this scoped instance.</summary>
     private readonly HashSet<TKey> _Entered = [];
 
     /// <summary>Reference to the injected generic singleton dispenser</summary>
-    private readonly IIndexedBarrierDispenser<TKey, TBarrier> _Barriers;
+    private readonly IIndexedCriticalSectionDispenser<TKey, TBarrier> _Barriers;
 
     /// <summary>Disposed status flag</summary>
     private bool _Disposed;
 
     /// <summary>
-    /// Intended to be called from DI container.
+    /// Intended to be called with dependency injection via a dependency container.
     /// </summary>
     /// <param name="barriers">should be registered as generic singleton</param>
-    public IndexedBarrierGuards(
-        IIndexedBarrierDispenser<TKey, TBarrier> barriers
+    public IndexedCriticalSection(
+        IIndexedCriticalSectionDispenser<TKey, TBarrier> barriers
     )
     {
         // capture injected dispenser
@@ -45,7 +45,7 @@ public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
     /// <returns>barrier indexed by key in dispenser</returns>
     /// <param name="key">key for the barriered section</param>
     private TBarrier GetBarrier(TKey key)
-        => _Barriers.GetOrAdd(key, _ndx => new TBarrier());
+        => _Barriers.Dispense(key, _ndx => new TBarrier());
 
     /// <summary>
     /// Try to enter an indexed barrier, waiting for a number of milliseconds if semaphore is not ready for use.
@@ -76,7 +76,7 @@ public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
     /// Explicitly exit an indexed barrier.
     /// </summary>
     /// <remarks>
-    /// <para>This method is useful for leaving barriered sections before the DI scope is complete.</para>
+    /// <para>This method is useful for leaving barriered sections before the service provider scope is complete.</para>
     /// <para>Usually used when flow processing has determined that the barriered section is no longer needed, 
     /// but the processing flow might continue looking for additional barriered resources.</para>
     /// <para>Work might be abandonned when additional barriered sections are needed, but are unable to be entered.</para>
@@ -86,7 +86,7 @@ public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
     {
         if (_Entered.Remove(key))
         {
-            _Barriers.TryGetValue(key)?.Leave();
+            _Barriers.GetIfDefined(key)?.Leave();
         }
     }
 
@@ -94,7 +94,7 @@ public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
     /// "Casual" test to see if enterable
     /// </summary>
     /// <remarks>
-    /// <para>If already entered in this DI-scope, it is strictly true.</para>
+    /// <para>If already entered in this service provider scope, it is strictly true.</para>
     /// <para>If the barrier is currently not in use, it is true, but still capable of being denied.</para>
     /// </remarks>
     /// <returns>true if enterable</returns>
@@ -119,7 +119,7 @@ public sealed class IndexedBarrierGuards<TKey, TBarrier> : IDisposable
                 // clean up anything entered
                 foreach (var _entered in _Entered)
                 {
-                    _Barriers.TryGetValue(_entered)?.Leave();
+                    _Barriers.GetIfDefined(_entered)?.Leave();
                 }
 
                 // allows the dispenser to clean up unused barriers

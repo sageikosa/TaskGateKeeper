@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../TaskSampler/TaskSampler.csproj" Id="2a2fa418-c411-4606-a7b5-468e4cdd97b4" />
   <Project Path="TaskGateKeeper.csproj" />
 </Solution>

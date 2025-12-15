@@ -3,10 +3,10 @@ using TaskGateKeeper.Sempahores;
 
 namespace TaskGateKeeper;
 
-public sealed class IndexedBarrierDispenser<TKey, TBarrier>
-    : IIndexedBarrierDispenser<TKey, TBarrier>
+public sealed class IndexedCriticalSectionDispenser<TKey, TBarrier>
+    : IIndexedCriticalSectionDispenser<TKey, TBarrier>
     where TKey : struct, IEquatable<TKey>
-    where TBarrier : SemaphoreBarrier, new()
+    where TBarrier : SemaphoreBarrier, IIndexableSemaphoreBarrier<TKey>, new()
 {
     /// <summary>
     /// Concurrent dictionary mapping keys to semaphore barriers.
@@ -29,7 +29,7 @@ public sealed class IndexedBarrierDispenser<TKey, TBarrier>
     /// <param name="key">key for the barrier</param>
     /// <param name="addValueFactory">function to generate a barrier if not found in the dictionary</param>
     /// <returns>Barrier for the key</returns>
-    public TBarrier GetOrAdd(TKey key, Func<TKey, TBarrier> addValueFactory)
+    public TBarrier Dispense(TKey key, Func<TKey, TBarrier> addValueFactory)
         => _Dictionary.GetOrAdd(key, addValueFactory);
 
     /// <summary>
@@ -37,11 +37,11 @@ public sealed class IndexedBarrierDispenser<TKey, TBarrier>
     /// </summary>
     /// <param name="key">key for the barrier</param>
     /// <returns>specified barrier, or null</returns>
-    public TBarrier? TryGetValue(TKey key)
+    public TBarrier? GetIfDefined(TKey key)
         => _Dictionary.TryGetValue(key, out TBarrier? _value) ? _value : default;
 
     /// <summary>
-    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal starting use of barriers in a DI scope."
+    /// Called by <see cref="IndexedCriticalSection{TKey, TBarrier}"/> to signal starting use of barriers in a service provider scope."
     /// </summary>
     public void StartingUse()
     {
@@ -54,7 +54,7 @@ public sealed class IndexedBarrierDispenser<TKey, TBarrier>
     }
 
     /// <summary>
-    /// Called by <see cref="IndexedBarrierGuards{TKey, TBarrier}"/> to signal finished use of barriers in a DI scope."
+    /// Called by <see cref="IndexedCriticalSection{TKey, TBarrier}"/> to signal finished use of barriers in a service provider scope."
     /// </summary>
     public void FinishedUse()
     {

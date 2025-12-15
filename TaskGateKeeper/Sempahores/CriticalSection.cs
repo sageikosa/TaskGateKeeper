@@ -1,25 +1,25 @@
 ﻿namespace TaskGateKeeper.Sempahores;
 
 /// <summary>
-/// DI-scope friendly barrier guard, capable of being disposed, and thus pretty useful in ASP.NET DI-scopes
+/// Service provider scope friendly critical section, capable of being disposed, and thus useful in ASP.NET service provider scopes
 /// </summary>
 /// <remarks>
-/// <para>Best use case is to create from a DI-container within a DI-scope that itself is disposed when finished.</para>
+/// <para>Best use case is to create within a service provider scope that itself is disposed when finished.</para>
 /// <para>The ASP.NET pipeline automatically disposes of scopes, so lifecycle within ASP.NET pipeline is automatically handled.</para>
 /// </remarks>
-/// <typeparam name="TBarrier">any barrier type used here should be registered as a singleton in the DI-container</typeparam>
-public sealed class ScopedBarrierGuard<TBarrier>(
+/// <typeparam name="TBarrier">any barrier type used here should be registered as a singleton in the dependency container</typeparam>
+public sealed class CriticalSection<TBarrier>(
     TBarrier barrier
     ) : IDisposable
     where TBarrier : SemaphoreBarrier
 {
-    // _Entered indicates this barrier has been passed within the current DI-Scope
+    // _Entered indicates this barrier has been passed within the current service provider scope
     private bool _Entered = false;
 
     private bool _Disposed;
 
     /// <summary>
-    /// Try to enter the barriered section if not already passed it for this DI-scope.
+    /// Try to enter the barriered section if not already passed it for this service provider scope.
     /// </summary>
     /// <param name="waitMilli">amount of time to wait in milliseconds if the barrier needs to be entered</param>
     /// <returns>true if progressed past the barrier</returns>
@@ -36,7 +36,7 @@ public sealed class ScopedBarrierGuard<TBarrier>(
     /// Explicitly exit an indexed barrier.
     /// </summary>
     /// <remarks>
-    /// <para>This method is useful for leaving barriered sections before the DI scope is complete.</para>
+    /// <para>This method is useful for leaving barriered sections before the service provider scope is complete.</para>
     /// <para>Usually used when flow processing has determined that the barriered section is no longer needed, 
     /// but the processing flow might continue looking for additional barriered resources.</para>
     /// <para>Work might be abandonned when additional barriered sections are needed, but are unable to be entered.</para>
@@ -54,7 +54,7 @@ public sealed class ScopedBarrierGuard<TBarrier>(
     /// "Casual" test to see if enterable
     /// </summary>
     /// <remarks>
-    /// <para>If already entered in this DI-scope, it is strictly true.</para>
+    /// <para>If already entered in this service provider scope, it is strictly true.</para>
     /// <para>If the barrier is currently not in use, it is true, but still capable of being denied.</para>
     /// </remarks>
     /// <returns>true if enterable</returns>
