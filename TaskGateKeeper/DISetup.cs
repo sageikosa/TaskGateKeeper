@@ -6,7 +6,10 @@ namespace TaskGateKeeper;
 
 public static class DISetup
 {
-    public static IServiceCollection AddScopeBarriers(this IServiceCollection services)
+    /// <summary>
+    /// Add services needed for scope-friendly critical sections and indexed critical sections
+    /// </summary>
+    public static IServiceCollection AddScopedCriticalSections(this IServiceCollection services)
     {
         // generic implementation for handling combinations of indexed barriers
         services.TryAddSingleton(typeof(IIndexedCriticalSectionDispenser<,>), typeof(IndexedCriticalSectionDispenser<,>));

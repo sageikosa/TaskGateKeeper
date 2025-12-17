@@ -5,7 +5,10 @@ namespace TaskSampler;
 
 public static class DISetup
 {
-    public static IServiceCollection AddSampleSemaphores(this IServiceCollection services)
+    /// <summary>
+    /// Add sample critical sections used in TaskSampler project
+    /// </summary>
+    public static IServiceCollection AddSampleCriticalSections(this IServiceCollection services)
     {
         // setup all singleton barriers
         services.AddSingleton<MasterCriticalSection>();
