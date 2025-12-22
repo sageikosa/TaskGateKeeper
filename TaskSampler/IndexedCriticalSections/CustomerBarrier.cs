@@ -8,6 +8,6 @@ namespace TaskSampler.IndexedCriticalSections;
 /// <summary>
 /// Customer critical sections to be indexed by CustomerID.
 /// </summary>
-public class CustomerCriticalSection : SemaphoreBarrier, IIndexableSemaphoreBarrier<CustomerID>
+public sealed class CustomerBarrier : SemaphoreBarrier, IIndexableSemaphoreBarrier<CustomerID>
 {
 }

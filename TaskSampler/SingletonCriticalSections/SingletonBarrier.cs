@@ -5,6 +5,6 @@ namespace TaskSampler.SingletonCriticalSections;
 /// <summary>
 /// Register as a singleton and use with <see cref="CriticalSection{TBarrier}/>
 /// </summary>
-public sealed class MasterCriticalSection : SemaphoreBarrier
+public class SingletonBarrier : SemaphoreBarrier
 {
 }
