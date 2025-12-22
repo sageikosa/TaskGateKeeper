@@ -129,7 +129,7 @@ Unique critical sections are represented by different derived `SemaphoreBarrier`
 **TaskSampler\SingletonCriticalSections** defines several derived barrier classes that are registered as singletons in **TaskSampler\DISetup.cs**.
 ```csharp
     // setup all singleton barriers
-    services.AddSingleton<MasterBarrier>();
+    services.AddSingleton<MainBarrier>();
     services.AddSingleton<ProcessBarrier>();
     services.AddSingleton<SingletonBarrier>();
 ```
