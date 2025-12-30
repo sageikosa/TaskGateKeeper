@@ -31,9 +31,17 @@ public abstract class SemaphoreBarrier
     /// <summary>
     /// Attempts to enter the barrier, waiting up to the specified number of milliseconds.
     /// </summary>
-    /// <param name="waitMS"></param>
+    /// <param name="waitMS">amount of time to wait in milliseconds if the barrier needs to be entered</param>
     public bool Enter(int waitMS)
-        => _Semaphore.Wait(waitMS);
+         => _Semaphore.Wait(waitMS, CancellationToken.None);
+
+    /// <summary>
+    /// Attempts to enter the barrier, waiting up to the specified number of milliseconds.
+    /// </summary>
+    /// <param name="waitMS">amount of time to wait in milliseconds if the barrier needs to be entered</param>
+    /// <param name="cancellationToken">cancellation token to observe while waiting</param>
+    public bool Enter(int waitMS, CancellationToken cancellationToken)
+        => _Semaphore.Wait(waitMS, cancellationToken);
 
     /// <summary>
     /// Leaves the barrier, releasing the semaphore.

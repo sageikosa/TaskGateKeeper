@@ -7,13 +7,13 @@ public class MainProcessor(
     CriticalSection<MainBarrier> criticalMainProcessor
     )
 {
-    public async Task<string> TryToDoStuff()
+    public async Task<string> TryToDoStuff(CancellationToken token)
     {
         // try to enter the critical section, waiting up to 1 second
-        if (criticalMainProcessor.TryEnter(1000))
+        if (criticalMainProcessor.TryEnter(1000, token))
         {
             // wait for 10 seconds while in the critical section
-            await Task.Delay(10000);
+            await Task.Delay(10000, token);
             return @"critical";
         }
         else

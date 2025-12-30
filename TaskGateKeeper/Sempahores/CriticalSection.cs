@@ -22,6 +22,21 @@ public sealed class CriticalSection<TBarrier>(
     /// Try to enter the barriered section if not already passed it for this service provider scope.
     /// </summary>
     /// <param name="waitMilli">amount of time to wait in milliseconds if the barrier needs to be entered</param>
+    /// <param name="cancellationToken">cancellation token to observe while waiting</param>
+    /// <returns>true if progressed past the barrier</returns>
+    public bool TryEnter(int waitMilli, CancellationToken cancellationToken)
+    {
+        if (!_Entered)
+        {
+            _Entered = barrier.Enter(waitMilli, cancellationToken);
+        }
+        return _Entered;
+    }
+
+    /// <summary>
+    /// Try to enter the barriered section if not already passed it for this service provider scope.
+    /// </summary>
+    /// <param name="waitMilli">amount of time to wait in milliseconds if the barrier needs to be entered</param>
     /// <returns>true if progressed past the barrier</returns>
     public bool TryEnter(int waitMilli)
     {
