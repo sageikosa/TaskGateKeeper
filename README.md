@@ -105,14 +105,14 @@ ASP.NET uses a new `IServiceScope` per request when resolving dependencies, and 
 
 Singleton Critical Sections
 ---------------------------
-Canonical critical sections are implemented with the `CriticalSection<>` class, and derived `SemaphoreBarrier` classes.  
+Canonical critical sections are implemented with the [`CriticalSection<>`](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/Sempahores/CriticalSection.cs) class, and within [`SemaphoreBarrier`](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/Sempahores/SemaphoreBarrier.cs) derived classes.  
 Each singleton-registered derived `SemaphoreBarrier` represents one critical section in the running process.  
 Unique critical sections are represented by different derived `SemaphoreBarrier` classes.
 
 ### CriticalSection
 `CriticalSection<TBarrier>` is a sealed generic class that expects a `SemaphoreBarrier` type as its only type parameter.  
 `CriticalSection<TBarrier>` implements `IDisposable` to participate in dependency scoped disposal operations.  
-`CriticalSection<TBarrier>` should be registered with as a scoped dependency as demonstrated in **TaskGateKeeper\DISetup.cs**.
+`CriticalSection<TBarrier>` should be registered with as a scoped dependency as demonstrated in [**TaskGateKeeper\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/DISetup.cs).
 ```csharp
     public static IServiceCollection AddScopedCriticalSections(this IServiceCollection services)
     {
@@ -126,7 +126,7 @@ Unique critical sections are represented by different derived `SemaphoreBarrier`
 ### SemaphoreBarrier
 `SemaphoreBarrier` is a abstract wrapper around a SemaphoreSlim in which the max capacity is capped at 1.  
 `SemaphoreBarrier` is abstract so that concrete types must be defined and used in dependency registration and injection resolution.  
-**TaskSampler\SingletonCriticalSections** defines several derived barrier classes that are registered as singletons in **TaskSampler\DISetup.cs**.
+**TaskSampler\SingletonCriticalSections** defines several derived barrier classes that are registered as singletons in [**TaskSampler\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskSampler/DISetup.cs).
 ```csharp
     // setup all singleton barriers
     services.AddSingleton<MainBarrier>();
@@ -135,8 +135,8 @@ Unique critical sections are represented by different derived `SemaphoreBarrier`
 ```
 
 ### MainProcessor (Sample)
-`MainProcesor` in **TaskSampler** demonstrates how to get the `CriticalSection<MainBarrier>` class injected, and how to use for critical section safety.  
-`MainProcesor` is setup as a scoped service in **TaskSampler\DISetup.cs**.
+`MainProcesor` in [**TaskSampler**](https://github.com/sageikosa/TaskGateKeeper/tree/main/TaskSampler) demonstrates how to get the `CriticalSection<MainBarrier>` class injected, and how to use for critical section safety.  
+`MainProcesor` is setup as a scoped service in [**TaskSampler\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskSampler/DISetup.cs).
 
 Indexed Critical Sections
 -------------------------
@@ -147,10 +147,10 @@ The canonical use case is ensuring that two distinct order-pickers in a warehous
 The "key" for the resource might be the aisle-key or the container-key, or a combination of aisle (or container) and item-type for finer granularity.
 Since often multiple containers or aisles may hold pickable inventory of the same item-type, the provisioning process can "walk-over" resources it cannot get access within a wait time and look elsewhere in the inventory set; allowing the provisioning process to complete faster.
 
-### IndexedCriticalSection
+### [IndexedCriticalSection](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/Sempahores/IndexedCriticalSection.cs)
 `IndexedCriticalSection<TKey, TBarrier>` is a sealed generic class that expects a `TKey` type, and a `SemaphoreBarrier` that implements `IIndexableSemaphoreBarrier<TKey>`.  
 `IndexedCriticalSection<TKey, TBarrier>` implements `IDisposable` to participate in dependency scoped disposal operations.  
-`IndexedCriticalSection<TKey, TBarrier>` should be registered with as a scoped dependency as demonstrated in **TaskGateKeeper\DISetup.cs**.
+`IndexedCriticalSection<TKey, TBarrier>` should be registered with as a scoped dependency as demonstrated in [**TaskGateKeeper\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/DISetup.cs).
 ```csharp
     public static IServiceCollection AddScopedCriticalSections(this IServiceCollection services)
     {

@@ -22,6 +22,7 @@ public static class DISetup
 
     public static IServiceCollection AddSampleProcessors(this IServiceCollection services)
     {
+        // this is like having 
         services.AddScoped<MainProcessor>();
         return services;
     }
