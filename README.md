@@ -42,7 +42,7 @@ Since `async` code may use different threads on either side of an `await` call, 
 The Effective (but Somewhat Unwieldy) Pattern
 ------------------------------
 A simple alternative (and the core of TaskGateKeeper) is to define a `SemaphoreSlim` and follow the same basic approach that the C# compiler uses
-within a `finally` block.
+within a `finally` block when handling `lock(){...}` constructs.
 
 ```csharp
 public class SimpleSemaphoreBlocking
@@ -97,9 +97,9 @@ There's a lot of patternable code in that, hence the library-esque classes.
 
 IDisposable in ASP.NET Service Scopes
 -------------------------------------
-The `IDisposable` interface is "special" in C# and .NET.  There is a keyword (`using`) dedicated to simplifying proper management of classes that implement it.
+The `IDisposable` interface is "special" in C# and .NET.  There is a keyword ([`using`](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/using-objects)) dedicated to simplifying proper management of classes that implement it.
 
-In the world of .NET dependency injection, `IServiceScope` is an `IDisposable` that (when disposed) will dispose all scoped services it resolved.
+In the world of .NET dependency injection, `IServiceScope` is an `IDisposable` that (when disposed) will dispose all scoped services it resolved.  [More Info](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-guidelines)
 
 ASP.NET uses a new `IServiceScope` per request when resolving dependencies, and disposes of it when the request ends.  Therefore, any scope-registered `IDisposable` resolved in an ASP.NET request, will be disposed when the request ends.
 
@@ -126,7 +126,7 @@ Unique critical sections are represented by different derived `SemaphoreBarrier`
 ### SemaphoreBarrier
 `SemaphoreBarrier` is a abstract wrapper around a SemaphoreSlim in which the max capacity is capped at 1.  
 `SemaphoreBarrier` is abstract so that concrete types must be defined and used in dependency registration and injection resolution.  
-**TaskSampler\SingletonCriticalSections** defines several derived barrier classes that are registered as singletons in [**TaskSampler\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskSampler/DISetup.cs).
+[**TaskSampler\SingletonCriticalSections**](https://github.com/sageikosa/TaskGateKeeper/tree/main/TaskSampler/SingletonCriticalSections) defines several derived barrier classes that are registered as singletons in [**TaskSampler\DISetup.cs**](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskSampler/DISetup.cs).
 ```csharp
     // setup all singleton barriers
     services.AddSingleton<MainBarrier>();
@@ -167,6 +167,6 @@ Since often multiple containers or aisles may hold pickable inventory of the sam
 `SemaphoreBarrier` derived classes that implement `IIndexableSemaphoreBarrier<TKey>` do _**NOT**_ need to registered in the dependency container, they will be managed by the next class, the `IIndexedCriticalSectionDispenser<,>`
 
 ### IIndexedCriticalSectionDispenser
-`IIndexedCriticalSectionDispenser<TKey, TBarrier>` and it's implementation defines the service behavior for gaining access to indexed semaphore barriers.  
+`IIndexedCriticalSectionDispenser<TKey, TBarrier>` and it's [implementation](https://github.com/sageikosa/TaskGateKeeper/blob/main/TaskGateKeeper/IndexedCriticalSectionDispenser.cs) defines the service behavior for gaining access to indexed semaphore barriers.  
 `IIndexedCriticalSectionDispenser<TKey, TBarrier>` is expected to only be used within the `IndexedCriticalSection<,>` class.  
 `IIndexedCriticalSectionDispenser<TKey, TBarrier>` manages the singleton concurrent dictionaries used for indexed critical sections, as well as tracking if any `IndexedCriticalSection<,>` classes are in active use of the dispenser.  When nothing is using a particular `<TKey, TBarrier>` combination, the dictionary may be purged of all items.
