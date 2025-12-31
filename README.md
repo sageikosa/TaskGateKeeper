@@ -18,7 +18,7 @@ public class BadClass
     {
         // normally the "async" Stuff would be meatier
         // but this demonstrates the problem pattern
-        await Task.CompletedTask;
+        await Task.Delay(10000);
     }
 
     public static async Task<bool> DoSomething()
@@ -53,7 +53,7 @@ public class SimpleSemaphoreBlocking
     private static async Task DoStuffAsync()
     {
         // normally the "async" Stuff would be meatier
-        await Task.CompletedTask;
+        await Task.Delay(10000);
     }
 
     public static async Task<bool> DoSomething()

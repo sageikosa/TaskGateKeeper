@@ -8,7 +8,7 @@ public class BadClass
     {
         // normally there'd be something "async" and more meaty than this
         // but this demonstrates the pattern that is a problem
-        await Task.CompletedTask;
+        await Task.Delay(10000);
     }
 
     public static async Task<bool> DoSomething()
